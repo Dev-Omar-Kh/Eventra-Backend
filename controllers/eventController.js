@@ -61,8 +61,11 @@ exports.getAllEvents = async (req, res) => {
             };
         });
 
+        const types = await Event.distinct("type");
+
         res.json({
             events: eventsWithBookingStatus,
+            types,
             pagination: {
                 page: Number(page),
                 totalPages,
