@@ -10,11 +10,6 @@ const eventSchema = new mongoose.Schema({
     slogan: { type: String, required: true },
     description: { type: String, required: true },
     agendaDetails: [{ type: String }],
-
-    tags: {
-        type: [String],
-        default: []
-    }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Event', eventSchema);

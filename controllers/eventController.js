@@ -6,7 +6,7 @@ exports.createEvent = async (req, res) => {
 
     try {
 
-        const { image, name, location, type, date, seatsNumber, slogan, description, agendaDetails, tags } = req.body;
+        const { image, name, location, type, date, seatsNumber, slogan, description, agendaDetails } = req.body;
 
         const newEvent = new Event({
             image,
@@ -18,7 +18,6 @@ exports.createEvent = async (req, res) => {
             slogan,
             description,
             agendaDetails,
-            tags: tags || []
         });
 
         await newEvent.save();

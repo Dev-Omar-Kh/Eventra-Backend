@@ -9,6 +9,5 @@ exports.eventSchema = Joi.object({
     seatsNumber: Joi.number().integer().min(1).required(),
     slogan: Joi.string().required(),
     description: Joi.string().required(),
-    agendaDetails: Joi.array().items(Joi.string()),
-    tags: Joi.array().items(Joi.string()).optional()
+    agendaDetails: Joi.array().items(Joi.string())
 });
