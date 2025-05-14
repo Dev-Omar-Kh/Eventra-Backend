@@ -33,44 +33,55 @@ exports.createEvent = async (req, res) => {
 exports.getAllEvents = async (req, res) => {
 
     try {
-
-        const { type, page = 1, limit = 10 } = req.query;
+        const { type, page = 1, limit = 10, latest } = req.query;
 
         const query = type ? { type } : {};
-
         const skip = (page - 1) * limit;
-        const events = await Event.find(query)
-            .skip(skip)
-            .limit(Number(limit));
 
-        const totalEvents = await Event.countDocuments(query);
+        let events = [];
+        let totalEvents = 0;
+        let totalPages = 0;
 
-        const totalPages = Math.ceil(totalEvents / limit);
+        if (latest === 'true') {
+
+            events = await Event.find(query)
+                .sort({ createdAt: -1 })
+                .limit(8);
+
+        } else {
+
+            events = await Event.find(query)
+                .skip(skip)
+                .limit(Number(limit));
+
+            totalEvents = await Event.countDocuments(query);
+            totalPages = Math.ceil(totalEvents / limit);
+
+        }
 
         let bookedEventIds = [];
-
         if (req.user) {
             const userBookings = await Booking.find({ user: req.user.id }).select('event');
             bookedEventIds = userBookings.map(booking => booking.event.toString());
         }
 
-        const eventsWithBookingStatus = events.map(event => {
-            return {
-                ...event.toObject(),
-                isBooked: bookedEventIds.includes(event._id.toString())
-            };
-        });
+        const eventsWithBookingStatus = events.map(event => ({
+            ...event.toObject(),
+            isBooked: bookedEventIds.includes(event._id.toString())
+        }));
 
         const types = await Event.distinct("type");
 
         res.json({
             events: eventsWithBookingStatus,
             types,
-            pagination: {
-                page: Number(page),
-                totalPages,
-                totalEvents
-            }
+            ...(latest !== 'true' && {
+                pagination: {
+                    page: Number(page),
+                    totalPages,
+                    totalEvents
+                }
+            })
         });
 
     } catch (err) {
